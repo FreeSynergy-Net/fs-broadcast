@@ -1,6 +1,6 @@
-# fs-streaming – Design
+# fs-broadcast – Design
 
-Stage 1 of the design: **forward and record, no decoding.** No GUI, no capnp server. Contract: `streaming.capnp` in `fs-interfaces` v0.29.0 (draft, provisional; its header is binding). Program docs: `fs-documentation/docs/en/programs/apps/streaming/`.
+Stage 1 of the design: **forward and record, no decoding.** No GUI, no capnp server. Contract: `streaming.capnp` in `fs-interfaces` v0.29.0 (draft, provisional; its header is binding). Program docs: `fs-documentation/docs/en/programs/apps/broadcast/`.
 
 ## State
 
@@ -21,7 +21,7 @@ Checked by independent reviewers over several rounds before the tag.
 ## Decisions (the owner may change them; all provisional)
 
 ### Two crates
-`fs-streaming-core` has the model, rules and storage, and no media or sockets, behind the port `Relay` (Strategy). `fs-streaming-relay` implements it: tokio tasks, RTMP through `rml_rtmp` (MIT, sans-I/O sessions) behind our own trait (Adapter), so it can be swapped.
+`fs-broadcast-core` has the model, rules and storage, and no media or sockets, behind the port `Relay` (Strategy). `fs-broadcast-relay` implements it: tokio tasks, RTMP through `rml_rtmp` (MIT, sans-I/O sessions) behind our own trait (Adapter), so it can be swapped.
 
 ### Storage and secrets
 Streams and targets are written with `UnloggedObjects`, in a store the host passes and never connects to the hub: they hold or sit beside secrets, and an ordinary write would keep them in the log. Publisher key: 256 random bits from `getrandom`, shown once; only `sha256` is kept; compared in constant time. Target key: stored as given, because it has to be sent, and only in that store; there is no read path. The host decides on encryption at rest, and the store refuses nothing here, so **the DESIGN and the interface say that a target key is only as safe as this file**. No key vault exists yet (ADR 0024).
@@ -61,4 +61,4 @@ Pattern Strategy: port `RecordingSink`, `create(info) -> writer`, `finish`. `Fol
 Everything listed in the contract's root comment. `Status` is live only, nothing of it is stored.
 
 ## Tests
-Real sockets and real tools. `ffmpeg` and `ffprobe` are test-only tools, never a dependency of the program: a test publishes a generated video and audio to the real relay, with two local targets being further relay instances, and `ffprobe` reads what arrives and the recording. A test that needs them says so plainly and fails if they are absent, unless `FS_STREAMING_NO_FFMPEG=1`, which is then reported as skipped.
+Real sockets and real tools. `ffmpeg` and `ffprobe` are test-only tools, never a dependency of the program: a test publishes a generated video and audio to the real relay, with two local targets being further relay instances, and `ffprobe` reads what arrives and the recording. A test that needs them says so plainly and fails if they are absent, unless `FS_BROADCAST_NO_FFMPEG=1`, which is then reported as skipped.

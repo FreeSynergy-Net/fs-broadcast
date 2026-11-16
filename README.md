@@ -1,8 +1,8 @@
-# FreeSynergy Streaming — show something, and bring it everywhere
+# FreeSynergy Broadcast — show something, and bring it everywhere
 
 **Record once, send it to many places, and keep your stream key secret.**
 
-FreeSynergy Streaming takes one live stream and sends it on to several targets at the same moment, without decoding it, and records it. You do not need a provider in the middle.
+FreeSynergy Broadcast takes one live stream and sends it on to several targets at the same moment, without decoding it, and records it. You do not need a provider in the middle.
 
 What is different here: the stream is passed on untouched, so quality is not lost and the machine does little work. A slow or dead target never slows the sender or the other targets. Keys are treated as secrets: the key you publish with is shown once and only a hash is kept, and keys never appear in logs or errors. If the sender drops, targets stay connected for a while and the stream continues when it returns.
 
@@ -26,13 +26,13 @@ Latest tag: `v0.0.1` (stage 1 of the design).
 
 ## Part of FreeSynergy
 
-Streaming is the last step in the plan, in the media suite next to files. FreeSynergy is a family of programs that are free for everyone, forever, and that keep your data yours. The documentation, the manifesto and the overall plan live in [fs-documentation](https://github.com/FreeSynergy/fs-documentation); the reading version is at <https://freesynergy.github.io/fs-documentation/>. Start with the [manifesto](https://freesynergy.github.io/fs-documentation/manifesto/) if you want to know why we do this.
+Broadcast is the last step in the plan, in the media suite next to files. FreeSynergy is a family of programs that are free for everyone, forever, and that keep your data yours. The documentation, the manifesto and the overall plan live in [fs-documentation](https://github.com/FreeSynergy/fs-documentation); the reading version is at <https://freesynergy.github.io/fs-documentation/>. Start with the [manifesto](https://freesynergy.github.io/fs-documentation/manifesto/) if you want to know why we do this.
 
 
 ## For developers
 
-- Workspace crates: `fs-streaming-core` (streams, targets, keys as secrets, state; no media) and `fs-streaming-relay` (the forwarding, on `rml_rtmp` behind our own trait).
-- The contract is `streaming.capnp` in [fs-interfaces](https://github.com/FreeSynergy/fs-interfaces) (draft, provisional). Streaming owns it.
-- Build and test: `cargo build --workspace` and `cargo test --workspace`. Set `FS_STREAMING_NO_FFMPEG=1` to skip the tests that need ffmpeg.
+- Workspace crates: `fs-broadcast-core` (streams, targets, keys as secrets, state; no media) and `fs-broadcast-relay` (the forwarding, on `rml_rtmp` behind our own trait).
+- The contract is `streaming.capnp` in [fs-interfaces](https://github.com/FreeSynergy/fs-interfaces) (draft, provisional). Broadcast owns it.
+- Build and test: `cargo build --workspace` and `cargo test --workspace`. Set `FS_BROADCAST_NO_FFMPEG=1` to skip the tests that need ffmpeg.
 - Design and decisions: [DESIGN.md](DESIGN.md).
 - Licence: MIT OR Apache-2.0.

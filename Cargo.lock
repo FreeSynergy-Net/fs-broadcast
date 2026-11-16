@@ -741,7 +741,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "fs-streaming-core"
+name = "fs-broadcast-core"
 version = "0.0.1"
 dependencies = [
  "async-trait",
@@ -759,15 +759,15 @@ dependencies = [
 ]
 
 [[package]]
-name = "fs-streaming-relay"
+name = "fs-broadcast-relay"
 version = "0.0.1"
 dependencies = [
  "async-trait",
  "bytes",
  "chrono",
  "fs-objects",
- "fs-streaming-core",
- "fs-streaming-relay",
+ "fs-broadcast-core",
+ "fs-broadcast-relay",
  "getrandom 0.3.4",
  "rcgen",
  "rml_rtmp",

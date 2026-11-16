@@ -1,0 +1,30 @@
+[package]
+name = "fs-broadcast-relay"
+description = "RTMP in, many RTMP and RTMPS targets out, recording as FLV; forwards without decoding"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[features]
+# Hooks for tests only: extra trust anchors and a shortened grace time. Never enable in a program.
+test-hooks = []
+
+[dependencies]
+fs-broadcast-core = { path = "../fs-broadcast-core" }
+rml_rtmp = "0.8"
+tokio = { version = "1", features = ["full"] }
+tokio-rustls = "0.26"
+webpki-roots = "1"
+thiserror = "2"
+async-trait = "0.1"
+bytes = "1"
+tracing = "0.1"
+getrandom = "0.3"
+chrono = { version = "0.4", default-features = false, features = ["std", "clock"] }
+
+[dev-dependencies]
+fs-broadcast-relay = { path = ".", features = ["test-hooks"] }
+rcgen = "0.14"
+tracing-subscriber = "0.3"
+fs-objects = { git = "https://github.com/FreeSynergy/fs-objects", tag = "v0.0.1" }

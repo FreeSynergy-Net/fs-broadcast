@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["crates/fs-streaming-core", "crates/fs-streaming-relay"]
+members = ["crates/fs-broadcast-core", "crates/fs-broadcast-relay"]
 
 [workspace.package]
 version = "0.0.1"
