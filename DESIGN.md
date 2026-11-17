@@ -74,7 +74,7 @@ Window and server, so the program has a face before the relay is wired. They sto
 | `fs-broadcast-bin` | the command `fs-broadcast`: starter with fallback (pure `decide`), `serve`, `--version`, `--help` before any window or socket |
 
 ### The main view: a dashboard in preview
-Pattern of the models (restreaming and streaming dashboards, concepts only): a banner, four key figures (input, viewers, bitrate, duration), a preview surface for the outgoing stream, the targets with state and bitrate, the schedule. Today no data flows through the contract, so the view shows **typed sample data** (`Snapshot::sample`: neutral names, never real people or addresses), shown as sample data in this version; the preview mark stands once at the top (banner and title), never at a single figure. `Snapshot::shown` takes a real snapshot when there is one and then nothing of the sample remains (tests). The window does not yet build a real snapshot: that comes with the first wired method. Two test races in the relay (slow/places) were fixed in 66b71768 (test helpers only); an earlier undetermined red run, 1 of 15, remains unproven.
+Pattern of the models (restreaming and streaming dashboards, concepts only): a banner, four key figures (input, viewers, bitrate, duration), a preview surface for the outgoing stream, the targets with state and bitrate, the schedule. Today no data flows through the contract, so the view shows **typed sample data** (`Snapshot::sample`: neutral names, never real people or addresses), shown as sample data in this version; the preview mark stands once at the top (banner and title), never at a single figure. `Snapshot::shown` takes a real snapshot when there is one and then nothing of the sample remains (tests). The window does not yet build a real snapshot: that comes with the first wired method.
 
 ### Gaps (components that are missing; stand-ins used, to be replaced)
 * Key figures: no stat-tile component; simple boxes of plain text elements, caption, number and unit on separate lines (the text view breaks a short value inside a word in a narrow box; provisional).
@@ -89,3 +89,5 @@ Pattern of the models (restreaming and streaming dashboards, concepts only): a b
 
 ## Tests
 Real sockets and real tools. `ffmpeg` and `ffprobe` are test-only tools, never a dependency of the program: a test publishes a generated video and audio to the real relay, with two local targets being further relay instances, and `ffprobe` reads what arrives and the recording. A test that needs them says so plainly and fails if they are absent, unless `FS_BROADCAST_NO_FFMPEG=1`, which is then reported as skipped.
+
+Two test races in the relay (slow/places) were fixed in 66b71768 (test helpers only); an earlier undetermined red run, 1 of 9 local runs at 028e4c0e, remains unproven.
