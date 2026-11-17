@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=FreeSynergy.Broadcast
+GenericName=Broadcast
+Comment=Record once, send it to many places, keep your stream key secret
+Exec=fs-broadcast
+Icon=net.freesynergy.Broadcast
+Terminal=false
+Categories=AudioVideo;

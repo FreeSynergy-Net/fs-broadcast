@@ -1,9 +1,19 @@
 [workspace]
 resolver = "2"
-members = ["crates/fs-broadcast-core", "crates/fs-broadcast-relay"]
+members = [
+    "crates/fs-broadcast-core",
+    "crates/fs-broadcast-relay",
+    "crates/fs-broadcast-server",
+    "crates/fs-broadcast-client",
+    "crates/fs-broadcast-simple",
+    "crates/fs-broadcast-bin",
+]
 
 [workspace.package]
-version = "0.0.1"
+version = "0.0.2"
 edition = "2024"
 license = "MIT OR Apache-2.0"
-rust-version = "1.85"
+authors = ["FreeSynergy <support@freesynergy.net>"]
+repository = "https://github.com/FreeSynergy/fs-broadcast"
+# fs-rpc and fs-components need 1.89.
+rust-version = "1.89"

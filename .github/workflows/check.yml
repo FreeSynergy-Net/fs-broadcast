@@ -1,4 +1,4 @@
-# Copy to <repo>/.github/workflows/check.yml - runs fmt, clippy (pedantic), tests and the coding rules on every push.
+# Runs fmt, clippy (pedantic), tests and the coding rules on every push (fs-release caller, pinned).
 name: check
 on:
   push:
@@ -13,7 +13,9 @@ concurrency:
 
 jobs:
   check:
-    uses: FreeSynergy/fs-release/.github/workflows/check.yml@6ebd3f8f5dfc8a0be08866416169defa48aea8f1 # v0.0.9
+    uses: FreeSynergy/fs-release/.github/workflows/check.yml@v0.0.10
     with:
-      # The relay test with a real ffmpeg publisher times out on the runner; it says it is skipped (README) and runs in gates.sh on a developer machine.
+      # Software Vulkan (lavapipe) and fonts, as for the other programs with a window (the frontend builds on fs-components).
+      software-gpu: true
+      # The relay test with a real ffmpeg publisher times out on the runner; it says it is skipped (README).
       test-env: "FS_BROADCAST_NO_FFMPEG=1"

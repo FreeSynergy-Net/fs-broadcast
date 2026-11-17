@@ -4,6 +4,8 @@ description = "RTMP in, many RTMP and RTMPS targets out, recording as FLV; forwa
 version.workspace = true
 edition.workspace = true
 license.workspace = true
+authors.workspace = true
+repository.workspace = true
 rust-version.workspace = true
 
 [features]
@@ -27,4 +29,4 @@ chrono = { version = "0.4", default-features = false, features = ["std", "clock"
 fs-broadcast-relay = { path = ".", features = ["test-hooks"] }
 rcgen = "0.14"
 tracing-subscriber = "0.3"
-fs-objects = { git = "https://github.com/FreeSynergy/fs-objects", tag = "v0.0.1" }
+fs-objects = { git = "https://github.com/FreeSynergy/fs-objects", tag = "v0.0.6" }

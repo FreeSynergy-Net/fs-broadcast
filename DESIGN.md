@@ -1,10 +1,10 @@
 # fs-broadcast – Design
 
-Stage 1 of the design: **forward and record, no decoding.** No GUI, no capnp server. Contract: `streaming.capnp` in `fs-interfaces` v0.29.0 (draft, provisional; its header is binding). Program docs: `fs-documentation/docs/en/programs/apps/broadcast/`.
+Stage 1 of the design: **forward and record, no decoding.** Since 0.0.2 there is also a window and a capnp server (the basics, below); the relay is not wired to them. Contract: `streaming.capnp` in `fs-interfaces` v0.0.27 (draft 0.1, provisional; its header is binding). Program docs: `fs-documentation/docs/en/programs/apps/broadcast/`.
 
 ## State
 
-Version 0.1.0. Stage 1 of the design; no capnp server, no GUI. **Tested only on loopback with `ffmpeg`, never against a real platform.**
+Version 0.0.2. Stage 1 of the design (the core, tag `v0.0.1`) plus the basics: a capnp server that only reports what it offers, a client, a window and a starter. **Tested only on loopback with `ffmpeg`, never against a real platform.**
 
 | Area | State |
 |---|---|
@@ -14,7 +14,8 @@ Version 0.1.0. Stage 1 of the design; no capnp server, no GUI. **Tested only on 
 | `check` | done; can only know an explicit refusal |
 | FLV recording through `RecordingSink`, `FolderSink` | done; handing over to fs-files not built |
 | Everything else in the contract's root comment | not built, reported unsupported |
-| Tests | 94, real sockets, `ffmpeg` and `ffprobe` as test tools |
+| Window, server, client, starter (the basics) | done in 0.0.2, not wired to the relay |
+| Tests | the relay and core tests (real sockets, `ffmpeg` and `ffprobe` as test tools) plus the tests of the basics |
 
 Checked by independent reviewers over several rounds before the tag.
 
@@ -59,6 +60,29 @@ Pattern Strategy: port `RecordingSink`, `create(info) -> writer`, `finish`. `Fol
 
 ### Not built
 Everything listed in the contract's root comment. `Status` is live only, nothing of it is stored.
+
+## The basics (0.0.2)
+
+Window and server, so the program has a face before the relay is wired. They store nothing and forward nothing: the server answers `capabilities` (no ids yet, contract version `0.1`) and `supportReport`; every other method of `streaming.capnp` is `unimplemented` (ADR 0045), and the window shows what the server does not offer as locked ("kommt noch", ADR 0066).
+
+| Crate | What |
+|---|---|
+| `fs-broadcast-core`, `fs-broadcast-relay` | unchanged except pins (`fs-objects` v0.0.6, `fs-interfaces` v0.0.27) |
+| `fs-broadcast-server` | the contract over a local socket through `fs-rpc` v0.0.2 (`serve`); no lease: the server keeps running after the window closes until it is stopped or replaced |
+| `fs-broadcast-client` | handshake (`connect_matching`), `Hello::fetch` with a limit of 15 s for the whole first conversation (a hanging instance ends with an error code, never a hang; test), contract check (same main level, minor level not lower); errors carry a code and a detail, never a sentence for the window |
+| `fs-broadcast-simple` | the frontend `simple` (fs-components v0.0.25; only the client, a test checks `cargo tree`); pages Start, Broadcast (the main view) and What comes; words in MF2, de and en |
+| `fs-broadcast-bin` | the command `fs-broadcast`: starter with fallback (pure `decide`), `serve`, `--version`, `--help` before any window or socket |
+
+### The main view: a dashboard in preview
+Pattern of the models (restreaming and streaming dashboards, concepts only): a banner, four key figures (input, viewers, bitrate, duration), a preview surface for the outgoing stream, the targets with state and bitrate, the schedule. Today no data flows through the contract, so the view shows **typed sample data** (`Snapshot::sample`: neutral names, never real people or addresses), marked by a banner "Preview" and "(sample)" at each figure. `Snapshot::shown` takes a real snapshot when there is one and then nothing of the sample remains (tests). The window does not yet build a real snapshot: that comes with the first wired method.
+
+### Gaps (components that are missing; stand-ins used, to be replaced)
+* Key figures: no stat-tile component; simple boxes with text (provisional).
+* Stream preview: no video or picture-stream component; an empty-state surface with a file-video glyph stands in (provisional); no live glyph.
+* Targets and schedule: no list component with status cells; a text table (provisional); no sortable columns, no per-row actions or context menu.
+* No command model with state for the "Go live" button (menu model M1 of fs-components, v0.0.26 or later): the menu entries are locked placeholders.
+* No level meter, no status bar with live numbers, no password field for "show the key once".
+* Contract: draft (`streaming.capnp`, not locked). The basics are released with this draft contract.
 
 ## Tests
 Real sockets and real tools. `ffmpeg` and `ffprobe` are test-only tools, never a dependency of the program: a test publishes a generated video and audio to the real relay, with two local targets being further relay instances, and `ffprobe` reads what arrives and the recording. A test that needs them says so plainly and fails if they are absent, unless `FS_BROADCAST_NO_FFMPEG=1`, which is then reported as skipped.

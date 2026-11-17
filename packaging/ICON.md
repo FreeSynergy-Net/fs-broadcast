@@ -1,0 +1,1 @@
+Icon `net.freesynergy.Broadcast.png` (256x256): the FreeSynergy Broadcast icon, own design of the FreeSynergy project (icon set K2, accepted by the project owner 2026-11-17), licence MIT OR Apache-2.0 like the code. Source: `fs-broadcast.svg` of the icon set; the same file is embedded in the window (`crates/fs-broadcast-simple/assets/fs-broadcast.png`).
