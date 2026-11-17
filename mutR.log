@@ -1,0 +1,52 @@
+build-slot: slot 2 of 2 acquired
+   Compiling fs-broadcast-simple v0.0.2 (/srv/FreeSynergy/.scratch/api-runner/wt/broadcast-grundfassung/crates/fs-broadcast-simple)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 5.39s
+     Running unittests src/lib.rs (/srv/FreeSynergy/.scratch/target/broadcast-grundfassung/debug/deps/fs_broadcast_simple-6d94cba7d517261f)
+
+running 18 tests
+test cli::tests::unknown_words_and_missing_values_are_errors ... ok
+test cli::tests::the_known_words_are_read ... ok
+test link::tests::each_answer_gets_its_own_state ... ok
+test nav_tests::tests::there_is_no_second_navigation_inside_a_page ... ok
+test nav_tests::tests::every_entry_leads_to_a_screen_and_the_main_view_comes_first ... ok
+test words::tests::german_and_english_say_different_things ... ok
+test dashboard_tests::tests::the_sample_is_marked_and_a_real_snapshot_replaces_it_completely ... ok
+test nav_tests::tests::the_longest_tile_value_fits_the_fixed_tile_width_without_breaking_a_word ... ok
+test dashboard_tests::tests::tiles_say_a_dash_for_what_is_unknown_and_time_reads_as_clock ... ok
+test nav_tests::tests::every_sub_page_says_coming_soon_and_what_will_be_there_in_both_languages ... ok
+test dashboard_tests::view_tests::the_preview_banner_shows_for_the_sample_and_never_for_real_data ... ok
+test content::tests::a_missing_server_is_said_in_the_window_with_the_reason ... FAILED
+test content::tests::every_listed_item_exists_and_every_coming_item_is_locked ... ok
+test content::tests::the_open_items_are_named_without_a_promise ... ok
+test content::tests::a_raw_sentence_of_a_library_never_reaches_the_window_in_either_language ... FAILED
+test content::tests::a_wrong_contract_is_said_in_the_window_with_the_reason ... ok
+test dashboard_tests::tests::the_sample_has_neutral_names_in_both_languages_and_a_target_table_with_header ... ok
+test words::tests::both_languages_have_the_same_ids_and_variables ... FAILED
+
+failures:
+
+---- content::tests::a_missing_server_is_said_in_the_window_with_the_reason stdout ----
+
+thread 'content::tests::a_missing_server_is_said_in_the_window_with_the_reason' (1924459) panicked at crates/fs-broadcast-simple/src/content.rs:158:9:
+[Quote([Paragraph(Inline { text: "No server is running (nobody home).", marks: [] }), Paragraph(Inline { text: "Start the program with the command fs-broadcast; it starts the server and this window.", marks: [] })]), Heading { level: 2, text: Inline { text: "What it can do today", marks: [] } }, List { ordered: false, start: 1, items: [ListItem { task: None, blocks: [Paragraph(Inline { text: "Opens this window, finds its server and checks that both speak the same contract version.", marks: [] })] }, ListItem { task: None, blocks: [Paragraph(Inline { text: "Shows a first look at the main view, the dashboard (page \"Broadcast\"), with sample data, marked as a preview; nothing in it is live.", marks: [] })] }, ListItem { task: None, blocks: [Paragraph(Inline { text: "The core (receive one RTMP stream, pass it untouched to many RTMP and RTMPS targets, record it as FLV, check a target before going live) exists as a library, tested only on the local machine, and is not connected to this window yet; the server only reports what it offers, which is nothing yet.", marks: [] })] }] }, Heading { level: 2, text: Inline { text: "What comes", marks: [] } }, List { ordered: false, start: 1, items: [ListItem { task: None, blocks: [Paragraph(Inline { text: "Dashboard with real data: the input (address and a key that is shown once) and the targets with their state: live, error, disconnected. (coming soon)", marks: [] })] }, ListItem { task: None, blocks: [Paragraph(Inline { text: "Targets: add one (name, RTMP or RTMPS address, key hidden), switch it on or off, remove it. (coming soon)", marks: [] })] }, ListItem { task: None, blocks: [Paragraph(Inline { text: "Check a target before going live and show the result with the reason. (coming soon)", marks: [] })] }, ListItem { task: None, blocks: [Paragraph(Inline { text: "Input key: shown once, renewed on request; only a hash is stored, and the key never appears in a log or an error text. (coming soon)", marks: [] })] }, ListItem { task: None, blocks: [Paragraph(Inline { text: "Recording: start and stop, choose the folder with the file picker. (coming soon)", marks: [] })] }, ListItem { task: None, blocks: [Paragraph(Inline { text: "Status line: bitrate, duration, lost frames and the state of each target. (coming soon)", marks: [] })] }, ListItem { task: None, blocks: [Paragraph(Inline { text: "One target fails without disturbing the others: \"Target X disconnected, reconnect\". (coming soon)", marks: [] })] }, ListItem { task: None, blocks: [Paragraph(Inline { text: "A visible note that receiving is local and unencrypted by default; opening it to the network comes with a warning. (coming soon)", marks: [] })] }, ListItem { task: None, blocks: [Paragraph(Inline { text: "More, each planned, not scheduled, no promise: handing recordings to Files, a player page with an embed code, viewer numbers, a schedule with reminders in Calendars, connecting platforms by login, a joint chat, guests by link, other inputs (SRT, WebRTC), several qualities, automation through workflows (no macros of its own), and whether scenes and sources are wanted at all.", marks: [] })] }] }]
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- content::tests::a_raw_sentence_of_a_library_never_reaches_the_window_in_either_language stdout ----
+
+thread 'content::tests::a_raw_sentence_of_a_library_never_reaches_the_window_in_either_language' (1924460) panicked at crates/fs-broadcast-simple/src/content.rs:171:17:
+[Quote([Paragraph(Inline { text: "No server is running (The server could not be replaced (running: no server; needed: 0.0.2 protocol 1)).", marks: [] }), Paragraph(Inline { text: "Start the program with the command fs-broadcast; it starts the server and this window.", marks: [] })]), Heading { level: 2, text: Inline { text: "What it can do today", marks: [] } }, List { ordered: false, start: 1, items: [ListItem { task: None, blocks: [Paragraph(Inline { text: "Opens this window, finds its server and checks that both speak the same contract version.", marks: [] })] }, ListItem { task: None, blocks: [Paragraph(Inline { text: "Shows a first look at the main view, the dashboard (page \"Broadcast\"), with sample data, marked as a preview; nothing in it is live.", marks: [] })] }, ListItem { task: None, blocks: [Paragraph(Inline { text: "The core (receive one RTMP stream, pass it untouched to many RTMP and RTMPS targets, record it as FLV, check a target before going live) exists as a library, tested only on the local machine, and is not connected to this window yet; the server only reports what it offers, which is nothing yet.", marks: [] })] }] }, Heading { level: 2, text: Inline { text: "What comes", marks: [] } }, List { ordered: false, start: 1, items: [ListItem { task: None, blocks: [Paragraph(Inline { text: "Dashboard with real data: the input (address and a key that is shown once) and the targets with their state: live, error, disconnected. (coming soon)", marks: [] })] }, ListItem { task: None, blocks: [Paragraph(Inline { text: "Targets: add one (name, RTMP or RTMPS address, key hidden), switch it on or off, remove it. (coming soon)", marks: [] })] }, ListItem { task: None, blocks: [Paragraph(Inline { text: "Check a target before going live and show the result with the reason. (coming soon)", marks: [] })] }, ListItem { task: None, blocks: [Paragraph(Inline { text: "Input key: shown once, renewed on request; only a hash is stored, and the key never appears in a log or an error text. (coming soon)", marks: [] })] }, ListItem { task: None, blocks: [Paragraph(Inline { text: "Recording: start and stop, choose the folder with the file picker. (coming soon)", marks: [] })] }, ListItem { task: None, blocks: [Paragraph(Inline { text: "Status line: bitrate, duration, lost frames and the state of each target. (coming soon)", marks: [] })] }, ListItem { task: None, blocks: [Paragraph(Inline { text: "One target fails without disturbing the others: \"Target X disconnected, reconnect\". (coming soon)", marks: [] })] }, ListItem { task: None, blocks: [Paragraph(Inline { text: "A visible note that receiving is local and unencrypted by default; opening it to the network comes with a warning. (coming soon)", marks: [] })] }, ListItem { task: None, blocks: [Paragraph(Inline { text: "More, each planned, not scheduled, no promise: handing recordings to Files, a player page with an embed code, viewer numbers, a schedule with reminders in Calendars, connecting platforms by login, a joint chat, guests by link, other inputs (SRT, WebRTC), several qualities, automation through workflows (no macros of its own), and whether scenes and sources are wanted at all.", marks: [] })] }] }]
+
+---- words::tests::both_languages_have_the_same_ids_and_variables stdout ----
+
+thread 'words::tests::both_languages_have_the_same_ids_and_variables' (1924473) panicked at crates/fs-broadcast-simple/src/words.rs:44:9:
+["state-down-unreachable: variables differ, en {\"detail\"}, de {}"]
+
+
+failures:
+    content::tests::a_missing_server_is_said_in_the_window_with_the_reason
+    content::tests::a_raw_sentence_of_a_library_never_reaches_the_window_in_either_language
+    words::tests::both_languages_have_the_same_ids_and_variables
+
+test result: FAILED. 15 passed; 3 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.98s
+
+error: test failed, to rerun pass `-p fs-broadcast-simple --lib`

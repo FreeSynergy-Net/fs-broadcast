@@ -155,10 +155,25 @@ mod tests {
                 detail: "nobody home".into(),
             },
         ));
-        assert!(
-            said.contains("No server is running (nobody home)"),
-            "{said}"
-        );
+        assert!(said.contains("No server is running."), "{said}");
+        assert!(!said.contains("nobody home"), "{said}");
+    }
+
+    #[test]
+    fn a_raw_sentence_of_a_library_never_reaches_the_window_in_either_language() {
+        use fs_broadcast_client::Error;
+        const RAW: &str =
+            "The server could not be replaced (running: no server; needed: 0.0.2 protocol 1)";
+        for locale in [Locale::english(), Locale::parse("de").unwrap()] {
+            let texts = words(&locale);
+            for error in [Error::Unreachable(RAW.into()), Error::Protocol(RAW.into())] {
+                let said = flat(&blocks(&texts, &Link::of(Err(error))));
+                assert!(!said.contains("could not be replaced"), "{said}");
+                assert!(!said.contains("protocol 1"), "{said}");
+            }
+            let said = flat(&blocks(&texts, &Link::no_socket()));
+            assert!(!said.contains("no socket"), "{said}");
+        }
     }
 
     #[test]
