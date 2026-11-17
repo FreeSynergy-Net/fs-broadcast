@@ -10,7 +10,7 @@ What is different here: the stream is passed on untouched, so quality is not los
 
 Latest tag: `v0.0.1` (the core only). The version in this tree is `0.0.2` (program with a window, a server and a frontend).
 
-- **A window and a server (new in 0.0.2).** `fs-broadcast` makes sure the server runs and opens the frontend `simple`: name, icon, what works today, what comes, and a first look at the main view, a dashboard (key figures, stream preview, targets, schedule). The dashboard shows **sample data and says so** ("Preview", each figure marked); nothing in it is live. Everything that does not work yet says "coming soon". A missing, hanging or unfitting server is said in the window, never a grey window. Try `fs-broadcast --version`, `fs-broadcast --help`.
+- **A window and a server (new in 0.0.2).** `fs-broadcast` makes sure the server runs and opens the frontend `simple`: name, icon, what works today, what comes, and a first look at the main view, a dashboard (key figures, stream preview, targets, schedule) and one navigation on the left (the sub pages say "coming soon"). The dashboard shows **sample data and says so** ("Preview", each figure marked); nothing in it is live. Everything that does not work yet says "coming soon". A missing, hanging or unfitting server is said in the window, never a grey window. Try `fs-broadcast --version`, `fs-broadcast --help`.
 - Receive one RTMP stream and send it to many RTMP or RTMPS targets (the core, a library; not wired to the window).
 - Record the stream to a folder as FLV.
 - Check a target before going live, as far as that can be known.

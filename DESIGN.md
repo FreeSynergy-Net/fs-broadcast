@@ -70,17 +70,19 @@ Window and server, so the program has a face before the relay is wired. They sto
 | `fs-broadcast-core`, `fs-broadcast-relay` | unchanged except pins (`fs-objects` v0.0.6, `fs-interfaces` v0.0.27) |
 | `fs-broadcast-server` | the contract over a local socket through `fs-rpc` v0.0.2 (`serve`); no lease: the server keeps running after the window closes until it is stopped or replaced |
 | `fs-broadcast-client` | handshake (`connect_matching`), `Hello::fetch` with a limit of 15 s for the whole first conversation (a hanging instance ends with an error code, never a hang; test), contract check (same main level, minor level not lower); errors carry a code and a detail, never a sentence for the window |
-| `fs-broadcast-simple` | the frontend `simple` (fs-components v0.0.25; only the client, a test checks `cargo tree`); pages Start, Broadcast (the main view) and What comes; words in MF2, de and en |
+| `fs-broadcast-simple` | the frontend `simple` (fs-components v0.0.25; only the client, a test checks `cargo tree`); ONE navigation, the screen list of the shell on the left: Broadcast (the main view), Targets, Recordings, Input, Log, Settings (honest "coming soon" pages that say what will be there), then Start and What comes; the title of a page is its entry; the icon is 64 px next to the title, the goal below; words in MF2, de and en |
 | `fs-broadcast-bin` | the command `fs-broadcast`: starter with fallback (pure `decide`), `serve`, `--version`, `--help` before any window or socket |
 
 ### The main view: a dashboard in preview
 Pattern of the models (restreaming and streaming dashboards, concepts only): a banner, four key figures (input, viewers, bitrate, duration), a preview surface for the outgoing stream, the targets with state and bitrate, the schedule. Today no data flows through the contract, so the view shows **typed sample data** (`Snapshot::sample`: neutral names, never real people or addresses), marked by a banner "Preview" and "(sample)" at each figure. `Snapshot::shown` takes a real snapshot when there is one and then nothing of the sample remains (tests). The window does not yet build a real snapshot: that comes with the first wired method.
 
 ### Gaps (components that are missing; stand-ins used, to be replaced)
-* Key figures: no stat-tile component; simple boxes with text (provisional).
+* Key figures: no stat-tile component; simple boxes of plain text elements (the text view breaks a short value inside a word in a narrow box; provisional).
+* Navigation symbols: the screen list takes text only, so each entry has a character every font has as its symbol (provisional; a list with real icons is missing).
 * Stream preview: no video or picture-stream component; an empty-state surface with a file-video glyph stands in (provisional); no live glyph.
 * Targets and schedule: no list component with status cells; a text table (provisional); no sortable columns, no per-row actions or context menu.
-* No command model with state for the "Go live" button (menu model M1 of fs-components, v0.0.26 or later): the menu entries are locked placeholders.
+* No command model with state (menu model M1 of fs-components, v0.0.26 or later): the view has no "Go live" button and no toolbar; the only menu, "Broadcast" in the window bar, holds three entries (Go live, Record, Add target) that are locked with "(coming soon)" and are placeholders for what M1 will generate.
+* Navigation: an earlier draft had a second navigation inside the page whose entries led nowhere; it is gone. There is one navigation, the screen list of the shell; each of its entries is the main view or a "coming soon" page (a test checks that none is dead and that no page has an own navigation).
 * No level meter, no status bar with live numbers, no password field for "show the key once".
 * Contract: draft (`streaming.capnp`, not locked). The basics are released with this draft contract.
 

@@ -43,7 +43,7 @@ mod tests {
         };
         let t = tiles(&none, &texts);
         assert_eq!(t.len(), 4);
-        assert!(t[1..].iter().all(|(_, v)| v == "-"));
+        assert!(t[1..].iter().all(|(_, v, u)| v == "-" && u.is_empty()));
         assert_eq!(duration(4350), "01:12:30");
     }
 

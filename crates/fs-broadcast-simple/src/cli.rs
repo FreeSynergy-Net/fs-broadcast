@@ -5,12 +5,12 @@
 use std::path::PathBuf;
 
 /// The help text.
-pub const HELP: &str = "fs-broadcast-simple [--socket PATH] [--check] [--picture FILE.png [--size WIDTHxHEIGHT] [--screen start|main|coming]]\n\
+pub const HELP: &str = "fs-broadcast-simple [--socket PATH] [--check] [--picture FILE.png [--size WIDTHxHEIGHT] [--screen start|main|targets|recordings|input|log|settings|coming]]\n\
 The standard frontend `simple` of FreeSynergy Broadcast. Start the program with `fs-broadcast`, not this one.\n\
   --socket PATH    the server's socket (default: $XDG_RUNTIME_DIR/freesynergy/broadcast.sock)\n\
   --check          only connect and check the contract version, then exit (0 fits, 3 contract differs, 1 no server)\n\
   --picture FILE   draw the window to a picture, without opening it\n\
-  --screen ID      the page to draw (start, main or coming; default start)\n\
+  --screen ID      the page to draw (start, main, targets, recordings, input, log, settings or coming; default start)\n\
   --version, -V    print the version and exit\n\
   --help, -h       print this help and exit\n\
 Exit codes: 0 done, 1 failed, 2 wrong words, 3 the server's contract does not fit";
@@ -61,10 +61,12 @@ pub fn parse(words: &[String]) -> Result<Command, String> {
             "--screen" => {
                 screen = Some(match value("--screen")?.as_str() {
                     "start" => "home".to_owned(),
-                    "main" => "main".to_owned(),
-                    "coming" => "coming".to_owned(),
+                    other if crate::nav::SCREEN_IDS.contains(&other) => other.to_owned(),
                     other => {
-                        return Err(format!("--screen wants start, main or coming, not {other}"));
+                        return Err(format!(
+                            "--screen wants start or one of {}, not {other}",
+                            crate::nav::SCREEN_IDS.join(", ")
+                        ));
                     }
                 });
             }

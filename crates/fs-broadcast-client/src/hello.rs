@@ -37,12 +37,24 @@ impl Hello {
         starter: &dyn ServerStarter,
         expected: &str,
     ) -> Result<Self, Error> {
+        Self::fetch_within(socket, starter, expected, FIRST_CALL_LIMIT)
+    }
+
+    /// [`Hello::fetch`] with an own limit for the whole conversation (tests use a short one).
+    ///
+    /// # Errors
+    /// As for [`Hello::fetch`]; [`Error::Timeout`] when `limit` passed.
+    pub fn fetch_within(
+        socket: &Path,
+        starter: &dyn ServerStarter,
+        expected: &str,
+        limit: Duration,
+    ) -> Result<Self, Error> {
         let runtime = tokio::runtime::Builder::new_current_thread()
             .enable_all()
             .build()
             .map_err(|e| Error::Unreachable(e.to_string()))?;
         let local = tokio::task::LocalSet::new();
-        let limit = FIRST_CALL_LIMIT;
         local.block_on(&runtime, async {
             tokio::time::timeout(limit, Self::converse(socket, starter, expected))
                 .await

@@ -19,6 +19,9 @@ mod dashboard_styles;
 #[cfg(test)]
 mod dashboard_tests;
 mod link;
+mod nav;
+#[cfg(test)]
+mod nav_tests;
 mod run;
 mod window;
 mod words;
@@ -27,5 +30,6 @@ pub use cli::{Command, HELP, parse};
 pub use content::{blocks, coming, start};
 pub use dashboard::{Input, Slot, Snapshot, Target, TargetRow, View};
 pub use link::Link;
+pub use nav::{ENTRIES, Entry, SCREEN_IDS, Sub};
 pub use run::{EXIT_CONTRACT, run};
 pub use words::{TEXTS, words};

@@ -8,7 +8,7 @@ use fs_components::blinc::layout::div::{Div, div};
 use fs_components::blinc::layout::prelude::text;
 use fs_components_mf2::Mf2Texts;
 use fs_components_widgets::states::{Alert, EmptyState, Severity};
-use fs_components_widgets::{Align, Block, Glyph, Inline, TextView, Tone, icon};
+use fs_components_widgets::{Align, Block, Glyph, Inline, TextView};
 use fs_components_words::Args;
 
 pub use crate::dashboard_model::{Input, Slot, Snapshot, Target, TargetRow};
@@ -25,7 +25,7 @@ pub(crate) fn duration(seconds: u64) -> String {
 
 /// The tiles as (caption, value) pairs; a missing figure reads as a dash.
 #[must_use]
-pub fn tiles(snap: &Snapshot, texts: &Mf2Texts) -> Vec<(String, String)> {
+pub fn tiles(snap: &Snapshot, texts: &Mf2Texts) -> Vec<(String, String, String)> {
     let input = match snap.input {
         Input::Live => "dash-input-live",
         Input::Idle => "dash-input-idle",
@@ -33,31 +33,28 @@ pub fn tiles(snap: &Snapshot, texts: &Mf2Texts) -> Vec<(String, String)> {
         Input::Other => "dash-input-other",
     };
     let dash = || "-".to_owned();
+    // The number and its unit are two lines, so a tile never breaks inside a word.
     vec![
-        (plain(texts, "dash-tile-input"), plain(texts, input)),
+        (
+            plain(texts, "dash-tile-input"),
+            plain(texts, input),
+            String::new(),
+        ),
         (
             plain(texts, "dash-tile-viewers"),
-            snap.viewers.map_or_else(dash, |v| {
-                say(
-                    texts,
-                    "dash-viewers",
-                    &Args::new().text("count", v.to_string()),
-                )
-            }),
+            snap.viewers.map_or_else(dash, |v| v.to_string()),
+            String::new(),
         ),
         (
             plain(texts, "dash-tile-bitrate"),
-            snap.kbps.map_or_else(dash, |k| {
-                say(
-                    texts,
-                    "dash-bitrate",
-                    &Args::new().text("kbps", k.to_string()),
-                )
-            }),
+            snap.kbps.map_or_else(dash, |k| k.to_string()),
+            snap.kbps
+                .map_or_else(String::new, |_| plain(texts, "dash-unit-kbps")),
         ),
         (
             plain(texts, "dash-tile-duration"),
             snap.seconds.map_or_else(dash, duration),
+            String::new(),
         ),
     ]
 }
@@ -128,9 +125,8 @@ pub struct View {
     /// Title and text of the "preview" banner; `None` for real data.
     banner: Option<(String, String)>,
     title: Block,
-    nav: Vec<(Glyph, String, bool)>,
     figures: Block,
-    tiles: Vec<Vec<Block>>,
+    tiles: Vec<(String, String, String)>,
     stage: (Block, String, String),
     targets: Vec<Block>,
     schedule: Vec<Block>,
@@ -141,18 +137,7 @@ impl View {
     #[must_use]
     pub fn new(snap: &Snapshot, texts: &Mf2Texts) -> Self {
         // The preview mark stands once in the banner and once in the title, never at each figure.
-        let tiles = tiles(snap, texts)
-            .into_iter()
-            .map(|(caption, value)| {
-                vec![
-                    Block::Paragraph(Inline::plain(caption)),
-                    Block::Heading {
-                        level: 2,
-                        text: Inline::plain(value),
-                    },
-                ]
-            })
-            .collect();
+        let tiles = tiles(snap, texts);
         let title_id = if snap.sample {
             "dash-title-preview"
         } else {
@@ -169,16 +154,6 @@ impl View {
                 level: 1,
                 text: Inline::plain(plain(texts, title_id)),
             },
-            nav: [
-                (Glyph::Home, "nav-broadcast", true),
-                (Glyph::Transfers, "nav-targets", false),
-                (Glyph::FileVideo, "nav-recordings", false),
-                (Glyph::Download, "nav-input", false),
-                (Glyph::History, "nav-log", false),
-                (Glyph::Settings, "nav-settings", false),
-            ]
-            .map(|(g, id, active)| (g, plain(texts, id), active))
-            .to_vec(),
             figures: heading(texts, "dash-figures"),
             tiles,
             stage: (
@@ -217,12 +192,16 @@ impl View {
             );
         }
         let mut row = div().class("fs-bc-row");
-        for blocks in &self.tiles {
-            row = row.child(
-                div()
-                    .class("fs-bc-tile")
-                    .child(TextView::new(blocks.clone()).build()),
-            );
+        // Tiles use plain text elements, not the text view: it breaks a short value inside a word when the box is narrow.
+        for (caption, value, unit) in &self.tiles {
+            let mut tile = div()
+                .class("fs-bc-tile")
+                .child(text(caption.clone()).class("fs-bc-tile-caption"))
+                .child(text(value.clone()).class("fs-bc-tile-value"));
+            if !unit.is_empty() {
+                tile = tile.child(text(unit.clone()).class("fs-bc-tile-caption"));
+            }
+            row = row.child(tile);
         }
         // No live picture component exists yet: an empty-state surface stands in (a gap, listed in DESIGN.md).
         let (stage_title, empty, stage_text) = &self.stage;
@@ -242,26 +221,11 @@ impl View {
         let schedule = div()
             .class("fs-bc-section")
             .child(TextView::new(self.schedule.clone()).build());
-        let page = page
-            .child(TextView::new(vec![self.figures.clone()]).build())
+        page.child(TextView::new(vec![self.figures.clone()]).build())
             .child(row)
             .child(stage)
             .child(targets)
-            .child(schedule);
-        // The navigation stands on the left, with symbols; the active entry is the title of the main surface. Entries other
-        // than the first lead nowhere yet (the same preview).
-        let mut nav = div().class("fs-bc-nav");
-        for (glyph, label, active) in &self.nav {
-            let mut item = div().class("fs-bc-nav-item");
-            if *active {
-                item = item.class("fs-bc-nav-active");
-            }
-            nav = nav.child(
-                item.child(icon(*glyph, 20.0, Tone::Normal))
-                    .child(text(label.clone()).class("fs-bc-nav-label")),
-            );
-        }
-        div().class("fs-bc-page").child(nav).child(page)
+            .child(schedule)
     }
 }
 
