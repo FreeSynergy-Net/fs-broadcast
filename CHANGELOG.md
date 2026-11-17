@@ -2,6 +2,16 @@
 
 Version = tag; all crates of the workspace carry the same version.
 
+## Unreleased
+
+### English
+
+- Docs: removed the per-figure "(sample)" marks; the preview marker appears once (banner and title), as in the window.
+
+### Deutsch
+
+- Doku: die „(Beispiel)“-Marken an den einzelnen Zahlen entfernt; die Vorschau-Marke steht einmal (Banner und Titel), wie im Fenster.
+
 ## 0.0.2
 
 ### English
