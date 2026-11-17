@@ -67,7 +67,8 @@ async fn a_publishing_sender_gives_its_place_back_and_a_flood_does_not_touch_it(
     }
     drop((one, two));
     until("a third sender gets in", LONG, || async {
-        let mut r = Raw::connect(rig.addr).await;
+        // The relay frees the two places only when it notices the close: until then it turns us away.
+        let mut r = Raw::try_connect(rig.addr).await?;
         (r.publish(&format!("live/{}", c.id), &c.key).await == Answer::Accepted).then_some(())
     })
     .await;

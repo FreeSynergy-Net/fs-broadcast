@@ -166,9 +166,14 @@ async fn a_dead_target_retries_with_growing_pauses_and_the_others_go_on() {
         gaps[1] > gaps[0] && gaps[2] > gaps[1],
         "the pauses grow: {gaps:?}"
     );
-    let t = rig.service.targets(made.id).await.unwrap();
-    let dead_now = t.iter().find(|x| x.id == t_dead.id).unwrap();
-    assert_eq!(dead_now.state, TargetState::Retrying);
+    // The fifth accept is the start of an attempt: the state is `Connecting` until the hang-up
+    // is noticed, so wait for `Retrying` (the sampled-at-once check flaked, about 1 run in 9).
+    let dead_now = until("the dead target is retrying", LONG, || async {
+        let t = rig.service.targets(made.id).await.unwrap();
+        t.into_iter()
+            .find(|x| x.id == t_dead.id && x.state == TargetState::Retrying)
+    })
+    .await;
     assert!(dead_now.note.is_some());
     assert!(
         rig.service

@@ -30,6 +30,17 @@ impl Raw {
 
     /// With a receive buffer of this size, so that a client that stops reading blocks the relay soon.
     pub async fn connect_with(addr: std::net::SocketAddr, rcvbuf: Option<u32>) -> Raw {
+        Raw::try_connect_with(addr, rcvbuf)
+            .await
+            .expect("closed in the handshake")
+    }
+
+    /// Like `connect`, but `None` when the relay closes the connection in the handshake (no place free yet).
+    pub async fn try_connect(addr: std::net::SocketAddr) -> Option<Raw> {
+        Raw::try_connect_with(addr, None).await
+    }
+
+    async fn try_connect_with(addr: std::net::SocketAddr, rcvbuf: Option<u32>) -> Option<Raw> {
         let socket = tokio::net::TcpSocket::new_v4().unwrap();
         if let Some(n) = rcvbuf {
             socket.set_recv_buffer_size(n).unwrap();
@@ -38,27 +49,29 @@ impl Raw {
         let mut hs = Handshake::new(PeerType::Client);
         io.write_all(&hs.generate_outbound_p0_and_p1().unwrap())
             .await
-            .unwrap();
+            .ok()?;
         let mut buf = [0u8; 4096];
         loop {
-            let n = io.read(&mut buf).await.unwrap();
-            assert!(n > 0, "closed in the handshake");
+            let n = io.read(&mut buf).await.ok()?;
+            if n == 0 {
+                return None;
+            }
             match hs.process_bytes(&buf[..n]).unwrap() {
                 HandshakeProcessResult::InProgress { response_bytes } => {
-                    io.write_all(&response_bytes).await.unwrap();
+                    io.write_all(&response_bytes).await.ok()?;
                 }
                 HandshakeProcessResult::Completed { response_bytes, .. } => {
-                    io.write_all(&response_bytes).await.unwrap();
+                    io.write_all(&response_bytes).await.ok()?;
                     break;
                 }
             }
         }
-        Raw {
+        Some(Raw {
             io,
             de: ChunkDeserializer::new(),
             ser: ChunkSerializer::new(),
             stream_id: 0,
-        }
+        })
     }
 
     pub async fn command(
