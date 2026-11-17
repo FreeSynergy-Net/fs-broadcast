@@ -14,6 +14,10 @@
 mod cli;
 mod content;
 mod dashboard;
+mod dashboard_model;
+mod dashboard_styles;
+#[cfg(test)]
+mod dashboard_tests;
 mod link;
 mod run;
 mod window;

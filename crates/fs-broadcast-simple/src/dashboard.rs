@@ -7,144 +7,13 @@
 use fs_components::blinc::layout::div::{Div, div};
 use fs_components_mf2::Mf2Texts;
 use fs_components_widgets::states::{Alert, EmptyState, Severity};
-use fs_components_widgets::{Align, Block, Glyph, Inline, TextView};
-use fs_components_words::{Args, Words};
+use fs_components_widgets::{Align, Block, Glyph, Inline, TextView, Tone, icon};
+use fs_components_words::Args;
 
-/// The state of the input, as the contract's `StreamState` names it.
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub enum Input {
-    /// Nobody sends.
-    Idle,
-    /// Live.
-    Live,
-    /// The sender dropped for a short time; the targets stay connected.
-    Interrupted,
-    /// Anything else (checking, ended, error).
-    Other,
-}
+pub use crate::dashboard_model::{Input, Slot, Snapshot, Target, TargetRow};
+use crate::dashboard_model::{plain, say};
 
-/// The state of one target, as the contract's `TargetState` names it.
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub enum Target {
-    /// Switched off.
-    Off,
-    /// The stream is not live.
-    Waiting,
-    /// Connecting.
-    Connecting,
-    /// Sending.
-    Sending,
-    /// Lost, tries again.
-    Retrying,
-    /// The far end said no.
-    Refused,
-}
-
-impl Target {
-    fn id(self) -> &'static str {
-        match self {
-            Self::Off => "dash-target-off",
-            Self::Waiting => "dash-target-waiting",
-            Self::Connecting => "dash-target-connecting",
-            Self::Sending => "dash-target-sending",
-            Self::Retrying => "dash-target-retrying",
-            Self::Refused => "dash-target-refused",
-        }
-    }
-}
-
-/// One target row.
-#[derive(Clone, Debug, PartialEq, Eq)]
-pub struct TargetRow {
-    /// The name the person gave it.
-    pub name: String,
-    /// Its state.
-    pub state: Target,
-    /// The bitrate it receives, in kbit/s.
-    pub kbps: Option<u32>,
-}
-
-/// One scheduled broadcast.
-#[derive(Clone, Debug, PartialEq, Eq)]
-pub struct Slot {
-    /// The start, in UTC, as text.
-    pub when: String,
-    /// What it is called.
-    pub title: String,
-    /// How many targets it goes to.
-    pub targets: u32,
-}
-
-/// Everything the dashboard shows.
-#[derive(Clone, Debug, PartialEq, Eq)]
-pub struct Snapshot {
-    /// The input.
-    pub input: Input,
-    /// Viewers, if known.
-    pub viewers: Option<u32>,
-    /// Incoming bitrate in kbit/s.
-    pub kbps: Option<u32>,
-    /// Seconds since going live.
-    pub seconds: Option<u64>,
-    /// The targets.
-    pub targets: Vec<TargetRow>,
-    /// The schedule.
-    pub schedule: Vec<Slot>,
-    /// `true` for [`Snapshot::sample`]: the view says "preview" and marks the figures.
-    pub sample: bool,
-}
-
-fn say(texts: &Mf2Texts, id: &str, args: &Args) -> String {
-    texts.say(&id.into(), args).text().to_owned()
-}
-
-fn plain(texts: &Mf2Texts, id: &str) -> String {
-    say(texts, id, &Args::new())
-}
-
-impl Snapshot {
-    /// The sample data (neutral names, one live input), only for the preview.
-    #[must_use]
-    pub fn sample(texts: &Mf2Texts) -> Self {
-        let row = |n: u8, state, kbps| TargetRow {
-            name: plain(texts, &format!("dash-sample-target-{n}")),
-            state,
-            kbps,
-        };
-        Self {
-            input: Input::Live,
-            viewers: Some(128),
-            kbps: Some(4500),
-            seconds: Some(4350),
-            targets: vec![
-                row(1, Target::Sending, Some(4500)),
-                row(2, Target::Retrying, None),
-                row(3, Target::Off, None),
-            ],
-            schedule: vec![
-                Slot {
-                    when: "2026-12-01 08:00".into(),
-                    title: plain(texts, "dash-sample-slot-1"),
-                    targets: 2,
-                },
-                Slot {
-                    when: "2026-12-01 18:00".into(),
-                    title: plain(texts, "dash-sample-slot-2"),
-                    targets: 3,
-                },
-            ],
-            sample: true,
-        }
-    }
-
-    /// The snapshot to show: the real one when data flows, else the sample. Nothing of the sample survives a real one.
-    #[must_use]
-    pub fn shown(real: Option<Self>, texts: &Mf2Texts) -> Self {
-        real.unwrap_or_else(|| Self::sample(texts))
-    }
-}
-
-fn duration(seconds: u64) -> String {
+pub(crate) fn duration(seconds: u64) -> String {
     format!(
         "{:02}:{:02}:{:02}",
         seconds / 3600,
@@ -241,7 +110,7 @@ pub fn schedule_block(snap: &Snapshot, texts: &Mf2Texts) -> Block {
 
 fn heading(texts: &Mf2Texts, id: &str) -> Block {
     Block::Heading {
-        level: 3,
+        level: 2,
         text: Inline::plain(plain(texts, id)),
     }
 }
@@ -251,6 +120,8 @@ fn heading(texts: &Mf2Texts, id: &str) -> Block {
 pub struct View {
     /// Title and text of the "preview" banner; `None` for real data.
     banner: Option<(String, String)>,
+    title: Block,
+    nav: Vec<(Glyph, String, bool)>,
     figures: Block,
     tiles: Vec<Vec<Block>>,
     stage: (Block, String, String),
@@ -262,24 +133,24 @@ impl View {
     /// Resolve the words for `snap`.
     #[must_use]
     pub fn new(snap: &Snapshot, texts: &Mf2Texts) -> Self {
-        let mark = plain(texts, "dash-sample");
+        // The preview mark stands once in the banner and once in the title, never at each figure.
         let tiles = tiles(snap, texts)
             .into_iter()
             .map(|(caption, value)| {
-                let caption = if snap.sample {
-                    format!("{caption} ({mark})")
-                } else {
-                    caption
-                };
                 vec![
                     Block::Paragraph(Inline::plain(caption)),
                     Block::Heading {
-                        level: 2,
+                        level: 1,
                         text: Inline::plain(value),
                     },
                 ]
             })
             .collect();
+        let title_id = if snap.sample {
+            "dash-title-preview"
+        } else {
+            "dash-title"
+        };
         Self {
             banner: snap.sample.then(|| {
                 (
@@ -287,6 +158,20 @@ impl View {
                     plain(texts, "dash-banner-text"),
                 )
             }),
+            title: Block::Heading {
+                level: 1,
+                text: Inline::plain(plain(texts, title_id)),
+            },
+            nav: [
+                (Glyph::Home, "nav-broadcast", true),
+                (Glyph::Transfers, "nav-targets", false),
+                (Glyph::FileVideo, "nav-recordings", false),
+                (Glyph::Download, "nav-input", false),
+                (Glyph::History, "nav-log", false),
+                (Glyph::Settings, "nav-settings", false),
+            ]
+            .map(|(g, id, active)| (g, plain(texts, id), active))
+            .to_vec(),
             figures: heading(texts, "dash-figures"),
             tiles,
             stage: (
@@ -314,7 +199,8 @@ impl View {
     /// The elements.
     #[must_use]
     pub fn build(&self) -> Div {
-        let mut page = div().class("fs-bc-page");
+        let mut page = div().class("fs-bc-main");
+        page = page.child(TextView::new(vec![self.title.clone()]).build());
         if let Some((title, text)) = &self.banner {
             page = page.child(
                 Alert::new(Severity::Info, text)
@@ -349,97 +235,32 @@ impl View {
         let schedule = div()
             .class("fs-bc-section")
             .child(TextView::new(self.schedule.clone()).build());
-        page.child(TextView::new(vec![self.figures.clone()]).build())
+        let page = page
+            .child(TextView::new(vec![self.figures.clone()]).build())
             .child(row)
             .child(div().class("fs-bc-row").child(stage).child(targets))
-            .child(schedule)
-    }
-}
-
-/// The style sheet of the view: only theme variables, like the sheets of the components.
-pub const STYLES: &str = r"
-.fs-bc-page { display: flex; flex-direction: column; gap: var(--space-3); padding: var(--space-4); }
-.fs-bc-row { display: flex; flex-direction: row; gap: var(--space-3); width: 100%; }
-.fs-bc-tile { display: flex; flex-direction: column; flex-grow: 1; padding: var(--space-3); border-radius: var(--message-radius); border-width: 1px; border-color: var(--border); background: var(--surface); }
-.fs-bc-section { display: flex; flex-direction: column; flex-grow: 1; gap: var(--space-2); padding: var(--space-3); border-radius: var(--message-radius); border-width: 1px; border-color: var(--border); background: var(--surface); }
-";
-
-#[cfg(test)]
-mod tests {
-    use super::{Input, Snapshot, Target, TargetRow, View, duration, targets_table, tiles};
-    use crate::words::words;
-    use fs_components_words::Locale;
-
-    #[test]
-    fn the_sample_is_marked_and_a_real_snapshot_replaces_it_completely() {
-        let texts = words(&Locale::english());
-        let sample = Snapshot::sample(&texts);
-        assert!(sample.sample);
-        let real = Snapshot {
-            input: Input::Idle,
-            viewers: None,
-            kbps: None,
-            seconds: None,
-            targets: vec![TargetRow {
-                name: "mine".into(),
-                state: Target::Off,
-                kbps: None,
-            }],
-            schedule: vec![],
-            sample: false,
-        };
-        let shown = Snapshot::shown(Some(real.clone()), &texts);
-        assert_eq!(shown, real);
-        assert!(!format!("{shown:?}").contains("Sample"));
-        assert!(Snapshot::shown(None, &texts).sample);
-    }
-
-    #[test]
-    fn tiles_say_a_dash_for_what_is_unknown_and_time_reads_as_clock() {
-        let texts = words(&Locale::english());
-        let none = Snapshot {
-            sample: false,
-            viewers: None,
-            kbps: None,
-            seconds: None,
-            ..Snapshot::sample(&texts)
-        };
-        let t = tiles(&none, &texts);
-        assert_eq!(t.len(), 4);
-        assert!(t[1..].iter().all(|(_, v)| v == "-"));
-        assert_eq!(duration(4350), "01:12:30");
-    }
-
-    #[test]
-    fn the_sample_has_neutral_names_in_both_languages_and_a_target_table_with_header() {
-        for locale in [Locale::english(), Locale::parse("de").unwrap()] {
-            let texts = words(&locale);
-            let text = format!("{:?}", targets_table(&Snapshot::sample(&texts), &texts));
-            assert!(
-                text.contains("Beispielziel") || text.contains("Sample target"),
-                "{text}"
+            .child(schedule);
+        // The navigation stands on the left, with symbols; the active entry is the title of the main surface. Entries other
+        // than the first lead nowhere yet (the same preview).
+        let mut nav = div().class("fs-bc-nav");
+        for (glyph, label, active) in &self.nav {
+            let class = if *active {
+                "fs-bc-nav-item fs-bc-nav-active"
+            } else {
+                "fs-bc-nav-item"
+            };
+            nav = nav.child(
+                div()
+                    .class(class)
+                    .child(icon(*glyph, 20.0, Tone::Normal))
+                    .child(
+                        TextView::new(vec![Block::Paragraph(Inline::plain(label.as_str()))])
+                            .build(),
+                    ),
             );
         }
+        div().class("fs-bc-page").child(nav).child(page)
     }
 }
 
-#[cfg(test)]
-mod view_tests {
-    use super::{Snapshot, View};
-    use crate::words::words;
-    use fs_components_words::Locale;
-
-    #[test]
-    fn the_preview_banner_shows_for_the_sample_and_never_for_real_data() {
-        let texts = words(&Locale::english());
-        let sample = View::new(&Snapshot::sample(&texts), &texts);
-        assert!(sample.is_preview());
-        let real = Snapshot {
-            sample: false,
-            ..Snapshot::sample(&texts)
-        };
-        let view = View::new(&real, &texts);
-        assert!(!view.is_preview());
-        assert!(!format!("{view:?}").contains("(sample)"));
-    }
-}
+pub use crate::dashboard_styles::STYLES;
