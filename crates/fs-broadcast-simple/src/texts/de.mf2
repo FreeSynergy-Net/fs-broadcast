@@ -36,6 +36,7 @@ dash-banner-text = Beispieldaten, keine echte Sendung: Namen und Zahlen sind Bei
 dash-figures = Kennzahlen (vorläufig: einfache Kacheln)
 dash-tile-input = Eingang
 dash-tile-viewers = Zuschauer
+dash-viewers = {$count}
 dash-tile-bitrate = Bitrate
 dash-tile-duration = Dauer
 dash-input-live = Live

@@ -60,7 +60,7 @@ fn check(socket: Option<PathBuf>) -> ExitCode {
     };
     match Link::probe(&socket) {
         Link::Connected { contract } => {
-            println!("fs-broadcast-simple: the server speaks {contract}: fits");
+            println!("fs-broadcast-simple: code=fits contract={contract}");
             ExitCode::SUCCESS
         }
         Link::Mismatch { found, expected } => {

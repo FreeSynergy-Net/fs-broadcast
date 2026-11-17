@@ -31,7 +31,7 @@ enum Body {
     /// Text blocks, with the header (name, icon, goal) above them on the start page.
     Text { blocks: Vec<Block>, header: bool },
     /// The main view: the dashboard on its snapshot.
-    Dashboard(View),
+    Dashboard(Box<View>),
 }
 
 /// The one kind of screen of the window.
@@ -119,7 +119,7 @@ pub fn app(texts: &Mf2Texts, link: &Link) -> Result<AppWidget, AppError> {
             Screen::new(
                 "main",
                 say("screen-main"),
-                page(Body::Dashboard(View::new(&snapshot, texts))),
+                page(Body::Dashboard(Box::new(View::new(&snapshot, texts)))),
             ),
             Screen::new(
                 "coming",

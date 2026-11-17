@@ -5,6 +5,7 @@
 //! stand-in with neutral names (never real people or real addresses), and it is used only while no real snapshot exists.
 
 use fs_components::blinc::layout::div::{Div, div};
+use fs_components::blinc::layout::prelude::text;
 use fs_components_mf2::Mf2Texts;
 use fs_components_widgets::states::{Alert, EmptyState, Severity};
 use fs_components_widgets::{Align, Block, Glyph, Inline, TextView, Tone, icon};
@@ -36,7 +37,13 @@ pub fn tiles(snap: &Snapshot, texts: &Mf2Texts) -> Vec<(String, String)> {
         (plain(texts, "dash-tile-input"), plain(texts, input)),
         (
             plain(texts, "dash-tile-viewers"),
-            snap.viewers.map_or_else(dash, |v| v.to_string()),
+            snap.viewers.map_or_else(dash, |v| {
+                say(
+                    texts,
+                    "dash-viewers",
+                    &Args::new().text("count", v.to_string()),
+                )
+            }),
         ),
         (
             plain(texts, "dash-tile-bitrate"),
@@ -140,7 +147,7 @@ impl View {
                 vec![
                     Block::Paragraph(Inline::plain(caption)),
                     Block::Heading {
-                        level: 1,
+                        level: 2,
                         text: Inline::plain(value),
                     },
                 ]
@@ -218,14 +225,14 @@ impl View {
             );
         }
         // No live picture component exists yet: an empty-state surface stands in (a gap, listed in DESIGN.md).
-        let (stage_title, empty, text) = &self.stage;
+        let (stage_title, empty, stage_text) = &self.stage;
         let stage = div()
             .class("fs-bc-section")
             .child(TextView::new(vec![stage_title.clone()]).build())
             .child(
                 EmptyState::new(empty)
                     .glyph(Glyph::FileVideo)
-                    .text(text)
+                    .text(stage_text)
                     .id("bc-stage")
                     .build(),
             );
@@ -238,25 +245,20 @@ impl View {
         let page = page
             .child(TextView::new(vec![self.figures.clone()]).build())
             .child(row)
-            .child(div().class("fs-bc-row").child(stage).child(targets))
+            .child(stage)
+            .child(targets)
             .child(schedule);
         // The navigation stands on the left, with symbols; the active entry is the title of the main surface. Entries other
         // than the first lead nowhere yet (the same preview).
         let mut nav = div().class("fs-bc-nav");
         for (glyph, label, active) in &self.nav {
-            let class = if *active {
-                "fs-bc-nav-item fs-bc-nav-active"
-            } else {
-                "fs-bc-nav-item"
-            };
+            let mut item = div().class("fs-bc-nav-item");
+            if *active {
+                item = item.class("fs-bc-nav-active");
+            }
             nav = nav.child(
-                div()
-                    .class(class)
-                    .child(icon(*glyph, 20.0, Tone::Normal))
-                    .child(
-                        TextView::new(vec![Block::Paragraph(Inline::plain(label.as_str()))])
-                            .build(),
-                    ),
+                item.child(icon(*glyph, 20.0, Tone::Normal))
+                    .child(text(label.clone()).class("fs-bc-nav-label")),
             );
         }
         div().class("fs-bc-page").child(nav).child(page)

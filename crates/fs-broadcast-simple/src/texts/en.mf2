@@ -36,6 +36,7 @@ dash-banner-text = Sample data, not a real broadcast: names and figures are exam
 dash-figures = Key figures (provisional: simple tiles)
 dash-tile-input = Input
 dash-tile-viewers = Viewers
+dash-viewers = {$count}
 dash-tile-bitrate = Bitrate
 dash-tile-duration = Duration
 dash-input-live = Live

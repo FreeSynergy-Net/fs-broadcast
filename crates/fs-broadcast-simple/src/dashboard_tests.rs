@@ -1,11 +1,9 @@
 //! Tests of the dashboard model and view.
 //!
-//! Tests: example-based, on the sample and on a real snapshot.
+//! Pattern: none (tests). Tests: example-based, on the sample and on a real snapshot.
 
 mod tests {
-    use crate::dashboard::{
-        Input, Snapshot, Target, TargetRow, View, duration, targets_table, tiles,
-    };
+    use crate::dashboard::{Input, Snapshot, Target, TargetRow, duration, targets_table, tiles};
     use crate::words::words;
     use fs_components_words::Locale;
 

@@ -54,7 +54,7 @@ fn a_server_with_a_wrong_contract_ends_the_check_with_3_and_a_message() {
         assert_eq!(out.status.code(), Some(3));
         let said = String::from_utf8_lossy(&out.stderr);
         assert!(
-            said.contains("9.0") && said.contains("this frontend needs"),
+            said.contains("code=contract") && said.contains("found=9.0"),
             "{said}"
         );
     });
@@ -78,5 +78,5 @@ fn no_server_ends_the_check_with_1_and_a_message() {
     let dir = tempfile::tempdir().unwrap();
     let out = check(&dir.path().join("nobody.sock"));
     assert_eq!(out.status.code(), Some(1));
-    assert!(String::from_utf8_lossy(&out.stderr).contains("no fitting server"));
+    assert!(String::from_utf8_lossy(&out.stderr).contains("code=unreachable"));
 }
