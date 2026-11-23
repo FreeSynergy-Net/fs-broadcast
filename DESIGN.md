@@ -88,6 +88,6 @@ Pattern of the models (restreaming and streaming dashboards, concepts only): a b
 * Contract: draft (`streaming.capnp`, not locked). The basics are released with this draft contract.
 
 ## Tests
-Real sockets and real tools. `ffmpeg` and `ffprobe` are test-only tools, never a dependency of the program: a test publishes a generated video and audio to the real relay, with two local targets being further relay instances, and `ffprobe` reads what arrives and the recording. A test that needs them says so plainly and fails if they are absent, unless `FS_BROADCAST_NO_FFMPEG=1`, which is then reported as skipped.
+Real sockets and real tools. `ffmpeg` and `ffprobe` are test-only tools, never a dependency of the program: a test publishes a generated video and audio to the real relay, with two local targets being further relay instances, and `ffprobe` reads what arrives and the recording. A test that needs them says so plainly and fails if they are absent, unless `TEST_FS_BROADCAST_NO_FFMPEG=1`, which is then reported as skipped.
 
 Two test races in the relay (slow/places) were fixed in 66b71768 (test helpers only); an earlier undetermined red run, 1 of 9 local runs at 028e4c0e, remains unproven.

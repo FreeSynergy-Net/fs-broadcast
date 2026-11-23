@@ -18,4 +18,4 @@ jobs:
       # Software Vulkan (lavapipe) and fonts, as for the other programs with a window (the frontend builds on fs-components).
       software-gpu: true
       # The relay test with a real ffmpeg publisher times out on the runner; it says it is skipped (README).
-      test-env: "FS_BROADCAST_NO_FFMPEG=1"
+      test-env: "TEST_FS_BROADCAST_NO_FFMPEG=1"

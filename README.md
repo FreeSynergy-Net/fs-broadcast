@@ -35,7 +35,7 @@ Broadcast is the last step in the plan, in the media suite next to files. FreeSy
 - Workspace crates: `fs-broadcast-core` (streams, targets, keys as secrets, state; no media), `fs-broadcast-relay` (the forwarding, on `rml_rtmp` behind our own trait), `fs-broadcast-server` (the contract over a local socket), `fs-broadcast-client` (the contract as a client), `fs-broadcast-simple` (the frontend `simple`, a process of its own, depends only on the client and fs-components), `fs-broadcast-bin` (the command `fs-broadcast`: starter and `serve`).
 - Engine and frontend are separate processes (ADR 0021, 0094 draft); the manifest of the frontend is `packaging/frontends/simple.metainfo.xml`.
 - The contract is `streaming.capnp` in [fs-interfaces](https://github.com/FreeSynergy/fs-interfaces) (draft). Broadcast owns it; the capability key stays `streaming` (ADR 0087).
-- Build and test: `cargo build --workspace` and `cargo test --workspace`. Set `FS_BROADCAST_NO_FFMPEG=1` to skip the tests that need ffmpeg.
+- Build and test: `cargo build --workspace` and `cargo test --workspace`. Set `TEST_FS_BROADCAST_NO_FFMPEG=1` to skip the tests that need ffmpeg.
 - Design and decisions: [DESIGN.md](DESIGN.md).
 - Licence: MIT OR Apache-2.0.
 

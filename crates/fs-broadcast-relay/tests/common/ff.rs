@@ -3,10 +3,10 @@
 use std::path::Path;
 use std::process::{Command, Stdio};
 
-/// `true` when the test must be skipped (`FS_BROADCAST_NO_FFMPEG=1`); otherwise the tools must exist.
+/// `true` when the test must be skipped (`TEST_FS_BROADCAST_NO_FFMPEG=1`); otherwise the tools must exist.
 pub fn skip() -> bool {
-    if std::env::var("FS_BROADCAST_NO_FFMPEG").as_deref() == Ok("1") {
-        eprintln!("SKIPPED: FS_BROADCAST_NO_FFMPEG=1, this test needs ffmpeg and ffprobe");
+    if std::env::var("TEST_FS_BROADCAST_NO_FFMPEG").as_deref() == Ok("1") {
+        eprintln!("SKIPPED: TEST_FS_BROADCAST_NO_FFMPEG=1, this test needs ffmpeg and ffprobe");
         return true;
     }
     for tool in ["ffmpeg", "ffprobe"] {
@@ -18,7 +18,7 @@ pub fn skip() -> bool {
             .is_ok_and(|s| s.success());
         assert!(
             ok,
-            "{tool} is needed for this test; install it or set FS_BROADCAST_NO_FFMPEG=1"
+            "{tool} is needed for this test; install it or set TEST_FS_BROADCAST_NO_FFMPEG=1"
         );
     }
     false
